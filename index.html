@@ -23,6 +23,7 @@
     --bedtime-dark: #5855C8;
     --reward-gold: #FFD700;
     --reward-gold-dark: #FFA500;
+    --ipad-blue: #007AFF;
     --bg: #F5F0FF;
     --card: #FFFFFF;
     --text: #2D2540;
@@ -42,7 +43,6 @@
     overflow-x: hidden;
   }
 
-  /* Header */
   .header {
     background: linear-gradient(135deg, #7B78E8 0%, #5BC4A0 100%);
     padding: 52px 20px 24px;
@@ -51,300 +51,215 @@
     overflow: hidden;
   }
   .header::before {
-    content: '';
-    position: absolute;
+    content: ''; position: absolute;
     top: -40px; right: -40px;
     width: 160px; height: 160px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 50%;
+    background: rgba(255,255,255,0.12); border-radius: 50%;
   }
   .header::after {
-    content: '';
-    position: absolute;
+    content: ''; position: absolute;
     bottom: -30px; left: -30px;
     width: 120px; height: 120px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 50%;
+    background: rgba(255,255,255,0.08); border-radius: 50%;
   }
   .header h1 {
     font-family: 'Fredoka One', cursive;
-    font-size: 28px;
-    color: white;
-    letter-spacing: 0.5px;
-    position: relative;
-    z-index: 1;
+    font-size: 28px; color: white;
+    letter-spacing: 0.5px; position: relative; z-index: 1;
   }
   .header .date {
-    font-size: 14px;
-    color: rgba(255,255,255,0.85);
-    margin-top: 4px;
-    font-weight: 600;
-    position: relative;
-    z-index: 1;
+    font-size: 14px; color: rgba(255,255,255,0.85);
+    margin-top: 4px; font-weight: 600; position: relative; z-index: 1;
   }
   .header .progress-bar-wrap {
     margin: 16px auto 0;
     background: rgba(255,255,255,0.25);
-    border-radius: 20px;
-    height: 10px;
-    max-width: 260px;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
+    border-radius: 20px; height: 10px; max-width: 260px;
+    position: relative; z-index: 1; overflow: hidden;
   }
   .header .progress-bar-fill {
-    height: 100%;
-    background: white;
-    border-radius: 20px;
-    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    width: 0%;
+    height: 100%; background: white; border-radius: 20px;
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); width: 0%;
   }
   .header .progress-label {
-    font-size: 12px;
-    color: rgba(255,255,255,0.9);
-    margin-top: 6px;
-    font-weight: 700;
-    position: relative;
-    z-index: 1;
+    font-size: 12px; color: rgba(255,255,255,0.9);
+    margin-top: 6px; font-weight: 700; position: relative; z-index: 1;
   }
 
-  /* Sync indicator */
+  /* Weekly $5 tracker */
+  .weekly-tracker {
+    margin: 12px auto 0;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 300px; position: relative; z-index: 1;
+  }
+  .weekly-tracker .wt-label {
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: rgba(255,255,255,0.8); margin-bottom: 8px;
+  }
+  .weekly-tracker .wt-days {
+    display: flex; justify-content: center; gap: 8px;
+  }
+  .wt-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .wt-day .day-name {
+    font-size: 10px; font-weight: 800;
+    color: rgba(255,255,255,0.7); text-transform: uppercase;
+  }
+  .wt-day .day-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .wt-day.complete .day-dot { background: #FFD700; border-color: #FFA500; transform: scale(1.1); }
+  .wt-day.today .day-dot { border-color: white; border-width: 2.5px; }
+
   .sync-indicator {
-    font-size: 11px;
-    color: rgba(255,255,255,0.75);
-    margin-top: 4px;
-    font-weight: 600;
-    position: relative;
-    z-index: 1;
-    min-height: 16px;
-    transition: opacity 0.3s;
+    font-size: 11px; color: rgba(255,255,255,0.75);
+    margin-top: 6px; font-weight: 600;
+    position: relative; z-index: 1; min-height: 16px;
   }
   .sync-indicator.saving { color: rgba(255,255,255,0.9); }
   .sync-indicator.error  { color: #FFD0D0; }
 
-  /* Reset button */
   .reset-btn {
-    display: block;
-    margin: 12px auto 0;
+    display: block; margin: 10px auto 0;
     background: rgba(255,255,255,0.25);
     border: 2px solid rgba(255,255,255,0.5);
-    color: white;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 800;
-    font-size: 13px;
-    padding: 6px 18px;
-    border-radius: 20px;
-    cursor: pointer;
-    position: relative;
-    z-index: 1;
-    transition: all 0.2s;
+    color: white; font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 13px; padding: 6px 18px;
+    border-radius: 20px; cursor: pointer;
+    position: relative; z-index: 1; transition: all 0.2s;
   }
   .reset-btn:active { transform: scale(0.96); background: rgba(255,255,255,0.35); }
 
-  /* Loading overlay */
   .loading-overlay {
-    position: fixed; inset: 0;
-    background: var(--bg);
+    position: fixed; inset: 0; background: var(--bg);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    z-index: 20000;
-    transition: opacity 0.4s;
+    z-index: 20000; transition: opacity 0.4s;
   }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
   .loading-spinner {
     width: 48px; height: 48px;
-    border: 5px solid #E0D8F8;
-    border-top-color: #7B78E8;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 16px;
+    border: 5px solid #E0D8F8; border-top-color: #7B78E8;
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;
   }
-  .loading-overlay p {
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
-    color: #7B78E8;
-  }
+  .loading-overlay p { font-family: 'Fredoka One', cursive; font-size: 20px; color: #7B78E8; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Main content */
   .sections { padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
 
-  /* Section card */
   .section-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-    transition: transform 0.2s;
+    background: var(--card); border-radius: var(--radius);
+    overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.07); transition: transform 0.2s;
   }
-
   .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    position: relative;
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px; position: relative;
   }
-  .section-header .icon {
-    font-size: 28px;
-    line-height: 1;
-    flex-shrink: 0;
-  }
+  .section-header .icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
   .section-header .title-wrap { flex: 1; }
-  .section-header h2 {
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
-    letter-spacing: 0.3px;
-  }
-  .section-header .task-count {
-    font-size: 12px;
-    font-weight: 700;
-    opacity: 0.7;
-    margin-top: 1px;
-  }
+  .section-header h2 { font-family: 'Fredoka One', cursive; font-size: 20px; letter-spacing: 0.3px; }
+  .section-header .task-count { font-size: 12px; font-weight: 700; opacity: 0.7; margin-top: 1px; }
   .section-header .section-check {
-    font-size: 22px;
-    opacity: 0;
-    transition: opacity 0.4s, transform 0.4s;
-    transform: scale(0.5);
+    font-size: 22px; opacity: 0;
+    transition: opacity 0.4s, transform 0.4s; transform: scale(0.5);
   }
-  .section-card.completed .section-check {
-    opacity: 1;
-    transform: scale(1);
-  }
+  .section-card.completed .section-check { opacity: 1; transform: scale(1); }
 
-  /* Color variants */
   .section-card[data-section="morning"] .section-header { background: var(--morning-light); }
   .section-card[data-section="morning"] h2 { color: var(--morning-dark); }
   .section-card[data-section="morning"] .task-count { color: var(--morning-dark); }
-
   .section-card[data-section="afterschool"] .section-header { background: var(--afterschool-light); }
   .section-card[data-section="afterschool"] h2 { color: var(--afterschool-dark); }
   .section-card[data-section="afterschool"] .task-count { color: var(--afterschool-dark); }
-
   .section-card[data-section="dinner"] .section-header { background: var(--dinner-light); }
   .section-card[data-section="dinner"] h2 { color: var(--dinner-dark); }
   .section-card[data-section="dinner"] .task-count { color: var(--dinner-dark); }
-
   .section-card[data-section="bedtime"] .section-header { background: var(--bedtime-light); }
   .section-card[data-section="bedtime"] h2 { color: var(--bedtime-dark); }
   .section-card[data-section="bedtime"] .task-count { color: var(--bedtime-dark); }
 
-  /* Task list */
   .task-list { padding: 6px 0; }
-
   .task-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 13px 16px;
-    border-bottom: 1px solid #F0ECF8;
-    cursor: pointer;
-    transition: background 0.15s;
-    user-select: none;
-    -webkit-user-select: none;
+    display: flex; align-items: center; gap: 14px; padding: 13px 16px;
+    border-bottom: 1px solid #F0ECF8; cursor: pointer;
+    transition: background 0.15s; user-select: none; -webkit-user-select: none;
   }
   .task-item:last-of-type { border-bottom: none; }
   .task-item:active { background: #F7F4FE; }
-
   .task-item .checkbox {
-    width: var(--check-size);
-    height: var(--check-size);
-    border-radius: 8px;
-    border: 2.5px solid #D4CDE8;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    background: white;
+    width: var(--check-size); height: var(--check-size);
+    border-radius: 8px; border: 2.5px solid #D4CDE8; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); background: white;
   }
   .task-item .checkbox svg {
-    width: 16px; height: 16px;
-    opacity: 0;
-    transform: scale(0.3);
+    width: 16px; height: 16px; opacity: 0; transform: scale(0.3);
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .task-item.checked .checkbox svg { opacity: 1; transform: scale(1); }
-
-  /* Checkbox colors by section */
   [data-section="morning"] .task-item.checked .checkbox { background: var(--morning); border-color: var(--morning); }
   [data-section="afterschool"] .task-item.checked .checkbox { background: var(--afterschool); border-color: var(--afterschool); }
   [data-section="dinner"] .task-item.checked .checkbox { background: var(--dinner); border-color: var(--dinner); }
   [data-section="bedtime"] .task-item.checked .checkbox { background: var(--bedtime); border-color: var(--bedtime); }
-
   .task-item .task-label {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.35;
-    transition: all 0.25s;
-    flex: 1;
+    font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; transition: all 0.25s; flex: 1;
   }
-  .task-item.checked .task-label {
-    color: #B0A8C8;
-    text-decoration: line-through;
-  }
+  .task-item.checked .task-label { color: #B0A8C8; text-decoration: line-through; }
 
   /* Reward row */
   .reward-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 13px 16px;
-    background: #F5F0FF;
-    border-top: 1.5px solid #E8E0F8;
+    display: flex; align-items: center; gap: 14px; padding: 13px 16px;
+    background: #F5F0FF; border-top: 1.5px solid #E8E0F8;
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   .reward-row::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--reward-gold), var(--reward-gold-dark));
-    opacity: 0;
-    transition: opacity 0.5s;
+    content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s;
   }
+  .reward-row.ipad-reward::before { background: linear-gradient(135deg, #007AFF, #0056CC); }
+  .reward-row.gold-reward::before { background: linear-gradient(135deg, var(--reward-gold), var(--reward-gold-dark)); }
   .reward-row.lit::before { opacity: 1; }
 
   .reward-row .reward-icon {
-    font-size: 22px;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
+    font-size: 22px; flex-shrink: 0; position: relative; z-index: 1;
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .reward-row.lit .reward-icon { transform: scale(1.3) rotate(-10deg); }
-
   .reward-row .reward-text-wrap { flex: 1; position: relative; z-index: 1; }
   .reward-row .reward-label {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--subtext);
-    transition: color 0.4s;
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--subtext); transition: color 0.4s;
   }
-  .reward-row.lit .reward-label { color: rgba(0,0,0,0.6); }
-
+  .reward-row.lit .reward-label { color: rgba(255,255,255,0.85); }
   .reward-row .reward-name {
-    font-family: 'Fredoka One', cursive;
-    font-size: 17px;
-    color: var(--text);
-    transition: color 0.4s;
+    font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--text); transition: color 0.4s;
   }
-  .reward-row.lit .reward-name { color: #2D1A00; }
+  .reward-row.lit .reward-name { color: white; }
 
-  .reward-row .stars-wrap {
-    display: flex;
-    gap: 2px;
-    position: relative;
-    z-index: 1;
+  /* iPad 30-min pill */
+  .ipad-timer { display: flex; align-items: center; position: relative; z-index: 1; }
+  .timer-pill {
+    background: rgba(0,122,255,0.12);
+    border: 1.5px solid rgba(0,122,255,0.35);
+    color: var(--ipad-blue);
+    font-family: 'Fredoka One', cursive; font-size: 15px;
+    padding: 5px 14px; border-radius: 20px; transition: all 0.4s;
   }
-  .reward-row .star {
-    font-size: 20px;
-    opacity: 0;
+  .reward-row.lit .timer-pill {
+    background: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.6); color: white;
+  }
+
+  /* Stars for bedtime */
+  .stars-wrap { display: flex; gap: 2px; position: relative; z-index: 1; }
+  .star {
+    font-size: 20px; opacity: 0;
     transform: scale(0) rotate(-180deg);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -352,172 +267,44 @@
   .reward-row.lit .star:nth-child(2) { opacity: 1; transform: scale(1) rotate(0deg); transition-delay: 0.15s; }
   .reward-row.lit .star:nth-child(3) { opacity: 1; transform: scale(1) rotate(0deg); transition-delay: 0.25s; }
 
-  /* Confetti burst overlay */
-  .confetti-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-  }
+  .confetti-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
+  .cash-rain-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9998; }
 
-  /* Cash day badge in header */
-  .cash-day-badge {
-    display: none;
-    margin: 10px auto 0;
-    background: linear-gradient(135deg, #2ECC71, #27AE60);
-    color: white;
-    font-family: 'Fredoka One', cursive;
-    font-size: 15px;
-    padding: 6px 20px;
-    border-radius: 20px;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
-    letter-spacing: 0.3px;
-  }
-  .cash-day-badge.show { display: inline-block; }
-
-  /* Cash reward row state */
-  .reward-row.cash-tracking {
-    background: linear-gradient(135deg, #E8F8EE, #D4F0DE);
-    border-top-color: #A8DFB8;
-  }
-  .reward-row.cash-tracking .reward-label { color: #27AE60; }
-  .reward-row.cash-tracking .reward-name { color: #1A7A42; }
-  .reward-row.cash-tracking .reward-icon { filter: none; }
-
-  /* Override gold lit for cash day — green cash burst */
-  .reward-row.cash-lit::before {
-    background: linear-gradient(135deg, #2ECC71, #27AE60) !important;
-  }
-  .reward-row.cash-lit .reward-label { color: rgba(255,255,255,0.85) !important; }
-  .reward-row.cash-lit .reward-name { color: white !important; }
-
-  /* Dollar sign bouncing coins */
-  .coins-wrap {
-    display: flex;
-    gap: 3px;
-    position: relative;
-    z-index: 1;
-  }
-  .coin {
-    font-size: 20px;
-    opacity: 0;
-    transform: translateY(10px) scale(0.5);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .reward-row.cash-tracking.lit .coin:nth-child(1),
-  .reward-row.cash-lit .coin:nth-child(1) { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.05s; }
-  .reward-row.cash-tracking.lit .coin:nth-child(2),
-  .reward-row.cash-lit .coin:nth-child(2) { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.15s; }
-  .reward-row.cash-tracking.lit .coin:nth-child(3),
-  .reward-row.cash-lit .coin:nth-child(3) { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.25s; }
-
-  /* All done screen */
   .all-done-banner {
-    background: linear-gradient(135deg, #FFD700, #FF9A3C);
-    border-radius: var(--radius);
-    padding: 24px 20px;
-    text-align: center;
-    box-shadow: 0 8px 30px rgba(255,160,0,0.35);
-    display: none;
+    background: linear-gradient(135deg, #2ECC71, #1A9E50);
+    border-radius: var(--radius); padding: 24px 20px; text-align: center;
+    box-shadow: 0 8px 30px rgba(39,174,96,0.35); display: none;
     animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .all-done-banner.cash { background: linear-gradient(135deg, #2ECC71, #1A9E50); box-shadow: 0 8px 30px rgba(39,174,96,0.4); }
   .all-done-banner.show { display: block; }
+  .all-done-banner.week-complete { background: linear-gradient(135deg, #FFD700, #FF9A3C); box-shadow: 0 8px 30px rgba(255,160,0,0.4); }
   .all-done-banner .trophy { font-size: 52px; display: block; margin-bottom: 8px; }
   .all-done-banner h3 {
-    font-family: 'Fredoka One', cursive;
-    font-size: 26px;
-    color: white;
-    margin-bottom: 6px;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    font-family: 'Fredoka One', cursive; font-size: 26px; color: white;
+    margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
-  .all-done-banner p {
-    font-size: 15px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.85);
-  }
-  .all-done-banner.cash h3 { color: white; }
+  .all-done-banner p { font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.9); }
 
-  /* Cash rain overlay */
-  .cash-rain-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 9998;
-  }
-
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.7); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-
-  /* Bounce for completed card */
-  @keyframes cardBounce {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.03); }
-    70%  { transform: scale(0.98); }
-    100% { transform: scale(1); }
-  }
-  .section-card.bounce { animation: cardBounce 0.5s ease forwards; }
-
-  /* Big cash reveal overlay */
   .cash-overlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s;
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 10000; pointer-events: none; opacity: 0; transition: opacity 0.3s;
   }
   .cash-overlay.show { opacity: 1; }
-  .cash-overlay .big-bill {
-    font-size: 100px;
-    animation: billPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
-  }
-  .cash-overlay .big-amount {
-    font-family: 'Fredoka One', cursive;
-    font-size: 64px;
-    color: white;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    animation: billPop 0.7s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-  .cash-overlay .big-msg {
-    font-family: 'Fredoka One', cursive;
-    font-size: 22px;
-    color: rgba(255,255,255,0.9);
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    margin-top: 8px;
-    animation: billPop 0.7s 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-  .cash-overlay-bg {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, rgba(39,174,96,0.85) 0%, rgba(26,120,60,0.9) 100%);
-    z-index: 9999;
-    opacity: 0;
-    transition: opacity 0.4s;
-    pointer-events: none;
-  }
-  .cash-overlay-bg.show { opacity: 1; }
+  .cash-overlay .big-bill { font-size: 100px; animation: billPop 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3)); }
+  .cash-overlay .big-amount { font-family:'Fredoka One',cursive; font-size:64px; color:white; text-shadow:0 4px 20px rgba(0,0,0,0.4); animation: billPop 0.7s 0.2s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .cash-overlay .big-msg { font-family:'Fredoka One',cursive; font-size:22px; color:rgba(255,255,255,0.9); text-shadow:0 2px 8px rgba(0,0,0,0.3); margin-top:8px; animation: billPop 0.7s 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .cash-overlay-bg { position:fixed; inset:0; background:radial-gradient(ellipse at center,rgba(255,180,0,0.9) 0%,rgba(200,100,0,0.95) 100%); z-index:9999; opacity:0; transition:opacity 0.4s; pointer-events:none; }
+  .cash-overlay-bg.show { opacity:1; }
 
-  @keyframes billPop {
-    from { opacity: 0; transform: scale(0.3) rotate(-15deg); }
-    to   { opacity: 1; transform: scale(1) rotate(0deg); }
-  }
+  @keyframes popIn { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+  @keyframes cardBounce { 0%{transform:scale(1)} 40%{transform:scale(1.03)} 70%{transform:scale(0.98)} 100%{transform:scale(1)} }
+  @keyframes billPop { from{opacity:0;transform:scale(0.3) rotate(-15deg)} to{opacity:1;transform:scale(1) rotate(0deg)} }
+  .section-card.bounce { animation: cardBounce 0.5s ease forwards; }
 </style>
 </head>
 <body>
 
-<!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <p>Loading checklist…</p>
@@ -535,16 +322,19 @@
 <div class="header">
   <h1>⭐ My Daily Checklist</h1>
   <div class="date" id="dateDisplay"></div>
-  <div class="cash-day-badge" id="cashDayBadge">💵 Cash Day — No iPad = $5!</div>
   <div class="progress-bar-wrap">
     <div class="progress-bar-fill" id="progressFill"></div>
   </div>
   <div class="progress-label" id="progressLabel">0 of 0 tasks done</div>
+  <div class="weekly-tracker">
+    <div class="wt-label">💵 Weekly $5 Progress</div>
+    <div class="wt-days" id="weeklyDays"></div>
+  </div>
   <div class="sync-indicator" id="syncIndicator"></div>
   <button class="reset-btn" onclick="resetAll()">🔄 Start Fresh</button>
 </div>
 
-<div class="sections" id="sectionsContainer">
+<div class="sections">
 
   <!-- MORNING -->
   <div class="section-card" data-section="morning" id="section-morning">
@@ -556,7 +346,7 @@
       </div>
       <span class="section-check">✅</span>
     </div>
-    <div class="task-list" id="tasks-morning">
+    <div class="task-list">
       <div class="task-item" data-task="m1" onclick="toggleTask(this)">
         <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <span class="task-label">Make bed, get dressed, brush hair, deodorant</span>
@@ -574,18 +364,13 @@
         <span class="task-label">Pack bag and special items (snack, violin, etc)</span>
       </div>
     </div>
-    <div class="reward-row" id="reward-morning">
-      <span class="reward-icon" id="reward-icon-morning">📱</span>
+    <div class="reward-row ipad-reward" id="reward-morning">
+      <span class="reward-icon">📱</span>
       <div class="reward-text-wrap">
-        <div class="reward-label">Reward</div>
-        <div class="reward-name" id="reward-name-morning">iPad Time</div>
+        <div class="reward-label">Unlock Reward</div>
+        <div class="reward-name">iPad Time</div>
       </div>
-      <div class="stars-wrap" id="stars-morning">
-        <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
-      </div>
-      <div class="coins-wrap" id="coins-morning" style="display:none">
-        <span class="coin">🪙</span><span class="coin">🪙</span><span class="coin">🪙</span>
-      </div>
+      <div class="ipad-timer"><div class="timer-pill">30 min 🔒</div></div>
     </div>
   </div>
 
@@ -599,7 +384,7 @@
       </div>
       <span class="section-check">✅</span>
     </div>
-    <div class="task-list" id="tasks-afterschool">
+    <div class="task-list">
       <div class="task-item" data-task="a1" onclick="toggleTask(this)">
         <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <span class="task-label">Change out of uniform</span>
@@ -617,18 +402,13 @@
         <span class="task-label">Practice sport / instrument</span>
       </div>
     </div>
-    <div class="reward-row" id="reward-afterschool">
-      <span class="reward-icon" id="reward-icon-afterschool">📱</span>
+    <div class="reward-row ipad-reward" id="reward-afterschool">
+      <span class="reward-icon">📱</span>
       <div class="reward-text-wrap">
-        <div class="reward-label">Reward</div>
-        <div class="reward-name" id="reward-name-afterschool">iPad Time</div>
+        <div class="reward-label">Unlock Reward</div>
+        <div class="reward-name">iPad Time</div>
       </div>
-      <div class="stars-wrap" id="stars-afterschool">
-        <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
-      </div>
-      <div class="coins-wrap" id="coins-afterschool" style="display:none">
-        <span class="coin">🪙</span><span class="coin">🪙</span><span class="coin">🪙</span>
-      </div>
+      <div class="ipad-timer"><div class="timer-pill">30 min 🔒</div></div>
     </div>
   </div>
 
@@ -642,7 +422,7 @@
       </div>
       <span class="section-check">✅</span>
     </div>
-    <div class="task-list" id="tasks-dinner">
+    <div class="task-list">
       <div class="task-item" data-task="d1" onclick="toggleTask(this)">
         <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <span class="task-label">Set and clear table</span>
@@ -656,18 +436,13 @@
         <span class="task-label">Make snack box</span>
       </div>
     </div>
-    <div class="reward-row" id="reward-dinner">
-      <span class="reward-icon" id="reward-icon-dinner">🍦</span>
+    <div class="reward-row ipad-reward" id="reward-dinner">
+      <span class="reward-icon">📱</span>
       <div class="reward-text-wrap">
-        <div class="reward-label">Reward</div>
-        <div class="reward-name" id="reward-name-dinner">Dessert</div>
+        <div class="reward-label">Unlock Reward</div>
+        <div class="reward-name">iPad Time</div>
       </div>
-      <div class="stars-wrap" id="stars-dinner">
-        <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
-      </div>
-      <div class="coins-wrap" id="coins-dinner" style="display:none">
-        <span class="coin">🪙</span><span class="coin">🪙</span><span class="coin">🪙</span>
-      </div>
+      <div class="ipad-timer"><div class="timer-pill">30 min 🔒</div></div>
     </div>
   </div>
 
@@ -681,7 +456,7 @@
       </div>
       <span class="section-check">✅</span>
     </div>
-    <div class="task-list" id="tasks-bedtime">
+    <div class="task-list">
       <div class="task-item" data-task="b1" onclick="toggleTask(this)">
         <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <span class="task-label">Take a shower</span>
@@ -695,388 +470,317 @@
         <span class="task-label">Set out clothes for tomorrow</span>
       </div>
     </div>
-    <div class="reward-row" id="reward-bedtime">
-      <span class="reward-icon" id="reward-icon-bedtime">📖</span>
+    <div class="reward-row gold-reward" id="reward-bedtime">
+      <span class="reward-icon">📖</span>
       <div class="reward-text-wrap">
         <div class="reward-label">Reward</div>
-        <div class="reward-name" id="reward-name-bedtime">Book Reading</div>
+        <div class="reward-name">Book Reading</div>
       </div>
-      <div class="stars-wrap" id="stars-bedtime">
+      <div class="stars-wrap">
         <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
-      </div>
-      <div class="coins-wrap" id="coins-bedtime" style="display:none">
-        <span class="coin">🪙</span><span class="coin">🪙</span><span class="coin">🪙</span>
       </div>
     </div>
   </div>
 
   <!-- ALL DONE BANNER -->
   <div class="all-done-banner" id="allDoneBanner">
-    <span class="trophy">🏆</span>
-    <h3>Amazing Work!</h3>
-    <p>You completed everything today! You're a superstar! ⭐</p>
+    <span class="trophy" id="allDoneTrophy">🌟</span>
+    <h3 id="allDoneTitle">Amazing Day!</h3>
+    <p id="allDoneMsg">All tasks done — you're on track for $5 this week! 💵</p>
   </div>
 
 </div>
 
 <script>
-  // ─── Upstash config ───────────────────────────────────────────────────────
   const UPSTASH_URL   = 'https://balanced-goat-87907.upstash.io';
   const UPSTASH_TOKEN = 'gQAAAAAAAVdjAAIgcDJhODM0YjFiZWE1ZmU0MWY2OWU0NDg5MWY5MzNhZGFiZQ';
 
-  function getTodayKey() {
+  // ─── Key helpers ──────────────────────────────────────────────────────────
+  function todayStr() {
     const d = new Date();
-    return `checklist:${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  }
+  function getTodayKey() { return `checklist:${todayStr()}`; }
+  function getWeekKey() {
+    const d = new Date();
+    const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+    const mon = new Date(d); mon.setDate(d.getDate() + diff);
+    return `week:${mon.getFullYear()}-${mon.getMonth()+1}-${mon.getDate()}`;
   }
 
+  // ─── Upstash REST ─────────────────────────────────────────────────────────
   async function redisGet(key) {
     const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
       headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
     });
     if (!res.ok) throw new Error(`GET failed: ${res.status}`);
-    const json = await res.json();
-    return json.result; // null or string
+    return (await res.json()).result;
   }
-
-  async function redisSet(key, value) {
-    // Upstash REST pipeline: send as a JSON command array
+  async function redisSet(key, value, ex) {
+    const cmd = ex ? ['SET', key, value, 'EX', ex] : ['SET', key, value];
     const res = await fetch(`${UPSTASH_URL}/pipeline`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${UPSTASH_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify([
-        ['SET', key, value, 'EX', 108000]
-      ])
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([cmd])
     });
     if (!res.ok) throw new Error(`SET failed: ${res.status}`);
-    return res.ok;
   }
 
-  // ─── App state ────────────────────────────────────────────────────────────
-  const sections = ['morning', 'afterschool', 'dinner', 'bedtime'];
-  let state = {};
+  // ─── State ────────────────────────────────────────────────────────────────
+  const sections     = ['morning', 'afterschool', 'dinner', 'bedtime'];
+  const ipadSections = ['morning', 'afterschool', 'dinner'];
+  let state    = {};
+  let weekData = {};
   let saveTimer = null;
 
-  function isCashDay() {
-    return [2, 4].includes(new Date().getDay());
-  }
-
-  const defaultRewards = {
-    morning:     { icon: '📱', name: 'iPad Time' },
-    afterschool: { icon: '📱', name: 'iPad Time' },
-    dinner:      { icon: '🍦', name: 'Dessert' },
-    bedtime:     { icon: '📖', name: 'Book Reading' },
-  };
-  const cashRewards = {
-    morning:     { icon: '💵', name: 'On track for $5!' },
-    afterschool: { icon: '💵', name: 'On track for $5!' },
-    dinner:      { icon: '💵', name: 'On track for $5!' },
-    bedtime:     { icon: '💵', name: '$5 Cash Reward!' },
-  };
-
-  // ─── Sync indicator ───────────────────────────────────────────────────────
   function setSyncStatus(msg, cls) {
     const el = document.getElementById('syncIndicator');
     el.textContent = msg;
     el.className = 'sync-indicator' + (cls ? ' ' + cls : '');
   }
 
-  // ─── Load from Upstash ────────────────────────────────────────────────────
+  // ─── Load ─────────────────────────────────────────────────────────────────
   async function loadState() {
     try {
-      console.log('[Checklist] Loading from key:', getTodayKey());
-      const raw = await redisGet(getTodayKey());
-      console.log('[Checklist] Loaded raw value:', raw);
-      if (raw) {
-        state = JSON.parse(raw);
-      } else {
-        state = {};
-      }
-    } catch (e) {
+      const [rawDay, rawWeek] = await Promise.all([redisGet(getTodayKey()), redisGet(getWeekKey())]);
+      state    = rawDay  ? JSON.parse(rawDay)  : {};
+      weekData = rawWeek ? JSON.parse(rawWeek) : {};
+      console.log('[Checklist] Loaded — day:', state, 'week:', weekData);
+    } catch(e) {
       console.error('[Checklist] Load failed:', e);
-      state = {};
+      state = {}; weekData = {};
     }
   }
 
-  // ─── Save to Upstash (debounced) ──────────────────────────────────────────
+  // ─── Save day ─────────────────────────────────────────────────────────────
   function saveState() {
     clearTimeout(saveTimer);
     setSyncStatus('Saving…', 'saving');
     saveTimer = setTimeout(async () => {
       try {
-        const payload = JSON.stringify(state);
-        console.log('[Checklist] Saving to key:', getTodayKey(), 'value:', payload);
-        await redisSet(getTodayKey(), payload);
-        console.log('[Checklist] Save successful');
+        await redisSet(getTodayKey(), JSON.stringify(state), 108000); // 30h
+        console.log('[Checklist] Day saved');
         setSyncStatus('✓ Saved', '');
         setTimeout(() => setSyncStatus('', ''), 2000);
-      } catch (e) {
+      } catch(e) {
         console.error('[Checklist] Save failed:', e);
         setSyncStatus('⚠ Save failed', 'error');
       }
     }, 600);
   }
 
-  // ─── UI helpers ───────────────────────────────────────────────────────────
+  // ─── Save week ────────────────────────────────────────────────────────────
+  async function saveWeekData() {
+    try {
+      await redisSet(getWeekKey(), JSON.stringify(weekData), 691200); // 8 days
+      console.log('[Checklist] Week saved');
+    } catch(e) { console.error('[Checklist] Week save failed:', e); }
+  }
+
+  // ─── Toggle ───────────────────────────────────────────────────────────────
   function toggleTask(el) {
     const taskId = el.dataset.task;
     state[taskId] = !state[taskId];
     saveState();
     renderTask(el, state[taskId]);
-    const sectionId = el.closest('.section-card').dataset.section;
-    checkSectionComplete(sectionId);
+    checkSectionComplete(el.closest('.section-card').dataset.section);
     updateProgress();
-    if (window.navigator && window.navigator.vibrate) navigator.vibrate(10);
+    if (navigator.vibrate) navigator.vibrate(10);
   }
+  function renderTask(el, checked) { el.classList.toggle('checked', !!checked); }
 
-  function renderTask(el, checked) {
-    el.classList.toggle('checked', !!checked);
-  }
-
-  function applyRewardMode() {
-    const cashDay = isCashDay();
-    document.getElementById('cashDayBadge').classList.toggle('show', cashDay);
-
-    sections.forEach(s => {
-      const reward = defaultRewards[s];
-      const cashR = cashRewards[s];
-      const icon = document.getElementById('reward-icon-' + s);
-      const name = document.getElementById('reward-name-' + s);
-      const stars = document.getElementById('stars-' + s);
-      const coins = document.getElementById('coins-' + s);
-      const row = document.getElementById('reward-' + s);
-
-      if (cashDay) {
-        icon.textContent = cashR.icon;
-        name.textContent = cashR.name;
-        stars.style.display = 'none';
-        coins.style.display = 'flex';
-        row.classList.add('cash-tracking');
-      } else {
-        icon.textContent = reward.icon;
-        name.textContent = reward.name;
-        stars.style.display = 'flex';
-        coins.style.display = 'none';
-        row.classList.remove('cash-tracking');
-      }
-    });
-  }
-
+  // ─── Section complete ─────────────────────────────────────────────────────
   function checkSectionComplete(sectionId) {
-    const card = document.getElementById('section-' + sectionId);
+    const card  = document.getElementById('section-' + sectionId);
     const tasks = card.querySelectorAll('.task-item');
-    const total = tasks.length;
-    const done = card.querySelectorAll('.task-item.checked').length;
-    document.getElementById('count-' + sectionId).textContent = `${done} of ${total} done`;
-    const reward = document.getElementById('reward-' + sectionId);
+    const done  = card.querySelectorAll('.task-item.checked').length;
+    document.getElementById('count-' + sectionId).textContent = `${done} of ${tasks.length} done`;
 
-    const wasComplete = card.classList.contains('completed');
-    const isNowComplete = done === total;
-    const cashDay = isCashDay();
+    const reward       = document.getElementById('reward-' + sectionId);
+    const wasComplete  = card.classList.contains('completed');
+    const isComplete   = done === tasks.length;
 
-    if (isNowComplete && !wasComplete) {
+    if (isComplete && !wasComplete) {
       card.classList.add('completed');
-      if (cashDay) {
-        reward.classList.add('lit', 'cash-lit');
-      } else {
-        reward.classList.add('lit');
-      }
-      card.classList.add('bounce');
-      card.addEventListener('animationend', () => card.classList.remove('bounce'), { once: true });
-
-      if (cashDay) {
-        launchCoinBurst();
+      reward.classList.add('lit');
+      // Update pill text for iPad sections
+      if (ipadSections.includes(sectionId)) {
+        reward.querySelector('.timer-pill').textContent = '30 min 🔓';
+        launchIpadConfetti();
       } else {
         launchConfetti();
       }
-    } else if (!isNowComplete && wasComplete) {
+      card.classList.add('bounce');
+      card.addEventListener('animationend', () => card.classList.remove('bounce'), { once: true });
+    } else if (!isComplete && wasComplete) {
       card.classList.remove('completed');
-      reward.classList.remove('lit', 'cash-lit');
+      reward.classList.remove('lit');
+      if (ipadSections.includes(sectionId)) {
+        reward.querySelector('.timer-pill').textContent = '30 min 🔒';
+      }
     }
   }
 
+  // ─── Progress + all-done ──────────────────────────────────────────────────
   function updateProgress() {
-    const allTasks = document.querySelectorAll('.task-item');
-    const doneTasks = document.querySelectorAll('.task-item.checked');
-    const total = allTasks.length;
-    const done = doneTasks.length;
-    const pct = total ? Math.round((done / total) * 100) : 0;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = `${done} of ${total} tasks done`;
+    const all  = document.querySelectorAll('.task-item').length;
+    const done = document.querySelectorAll('.task-item.checked').length;
+    document.getElementById('progressFill').style.width = (all ? Math.round(done/all*100) : 0) + '%';
+    document.getElementById('progressLabel').textContent = `${done} of ${all} tasks done`;
 
-    const allDone = sections.every(s => document.getElementById('section-' + s).classList.contains('completed'));
-    const banner = document.getElementById('allDoneBanner');
+    const allDone = sections.every(s => document.getElementById('section-'+s).classList.contains('completed'));
+    const banner  = document.getElementById('allDoneBanner');
+
     if (allDone) {
+      const td = todayStr();
+      const wasMarked = !!weekData[td];
+      weekData[td] = true;
+      if (!wasMarked) saveWeekData();
+      renderWeeklyTracker();
+
+      const weekComplete = getWeekDays().filter(d => weekData[d.dateStr]).length >= 5;
       banner.classList.add('show');
-      if (isCashDay()) {
-        banner.classList.add('cash');
-        banner.querySelector('.trophy').textContent = '💵';
-        banner.querySelector('h3').textContent = 'You Earned $5!';
-        banner.querySelector('p').textContent = 'No iPad + all tasks = $5 cash! Amazing! 🤑';
+      if (weekComplete) {
+        banner.classList.add('week-complete');
+        document.getElementById('allDoneTrophy').textContent = '💵';
+        document.getElementById('allDoneTitle').textContent  = 'You Earned $5!';
+        document.getElementById('allDoneMsg').textContent    = 'Full week of all tasks — AMAZING! Collect your $5! 🤑';
         launchCashRain();
+      } else {
+        banner.classList.remove('week-complete');
+        document.getElementById('allDoneTrophy').textContent = '🌟';
+        document.getElementById('allDoneTitle').textContent  = 'Amazing Day!';
+        document.getElementById('allDoneMsg').textContent    = "All tasks done — you're on track for $5 this week! 💵";
       }
     } else {
-      banner.classList.remove('show', 'cash');
+      banner.classList.remove('show', 'week-complete');
     }
   }
 
+  // ─── Weekly tracker ───────────────────────────────────────────────────────
+  function getWeekDays() {
+    const d   = new Date();
+    const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+    const mon  = new Date(d); mon.setDate(d.getDate() + diff);
+    const today = todayStr();
+    return ['M','T','W','T','F'].map((lbl, i) => {
+      const dd = new Date(mon); dd.setDate(mon.getDate() + i);
+      const ds = `${dd.getFullYear()}-${dd.getMonth()+1}-${dd.getDate()}`;
+      return { label: lbl, dateStr: ds, isToday: ds === today };
+    });
+  }
+  function renderWeeklyTracker() {
+    const container = document.getElementById('weeklyDays');
+    container.innerHTML = '';
+    getWeekDays().forEach(({ label, dateStr, isToday }) => {
+      const complete = !!weekData[dateStr];
+      const div = document.createElement('div');
+      div.className = 'wt-day' + (complete ? ' complete' : '') + (isToday ? ' today' : '');
+      div.innerHTML = `<div class="day-name">${label}</div><div class="day-dot">${complete ? '⭐' : ''}</div>`;
+      container.appendChild(div);
+    });
+  }
+
+  // ─── Render all ───────────────────────────────────────────────────────────
   function renderAll() {
     document.querySelectorAll('.task-item').forEach(el => renderTask(el, !!state[el.dataset.task]));
-    applyRewardMode();
     sections.forEach(s => {
-      const card = document.getElementById('section-' + s);
+      const card  = document.getElementById('section-' + s);
       const tasks = card.querySelectorAll('.task-item');
-      const total = tasks.length;
-      const done = card.querySelectorAll('.task-item.checked').length;
-      document.getElementById('count-' + s).textContent = `${done} of ${total} done`;
+      const done  = card.querySelectorAll('.task-item.checked').length;
+      document.getElementById('count-' + s).textContent = `${done} of ${tasks.length} done`;
       const reward = document.getElementById('reward-' + s);
-      if (done === total) {
+      if (done === tasks.length) {
         card.classList.add('completed');
-        if (isCashDay()) reward.classList.add('lit', 'cash-lit');
-        else reward.classList.add('lit');
+        reward.classList.add('lit');
+        if (ipadSections.includes(s)) reward.querySelector('.timer-pill').textContent = '30 min 🔓';
       } else {
         card.classList.remove('completed');
-        reward.classList.remove('lit', 'cash-lit');
+        reward.classList.remove('lit');
+        if (ipadSections.includes(s)) reward.querySelector('.timer-pill').textContent = '30 min 🔒';
       }
     });
+    renderWeeklyTracker();
     updateProgress();
   }
 
+  // ─── Reset ────────────────────────────────────────────────────────────────
   async function resetAll() {
     if (!confirm('Reset all tasks for today?')) return;
+    delete weekData[todayStr()];
     state = {};
     renderAll();
-    await redisSet(getTodayKey(), JSON.stringify(state));
+    await Promise.all([
+      redisSet(getTodayKey(), JSON.stringify(state), 108000),
+      saveWeekData()
+    ]);
     setSyncStatus('✓ Reset saved', '');
     setTimeout(() => setSyncStatus('', ''), 2000);
   }
 
+  // ─── Date ─────────────────────────────────────────────────────────────────
   function setDate() {
-    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const d = new Date();
     document.getElementById('dateDisplay').textContent =
       `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
-  // ─── Confetti & effects ───────────────────────────────────────────────────
-  function launchConfetti() {
-    const canvas = document.getElementById('confetti');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const colors = ['#FF9A3C','#5BC4A0','#E85D7A','#7B78E8','#FFD700','#FF6B6B','#4ECDC4'];
-    const pieces = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      r: Math.random() * 7 + 4,
-      d: Math.random() * 3 + 1,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      tilt: Math.random() * 10 - 10,
-      tiltAngle: 0,
-      tiltSpeed: Math.random() * 0.1 + 0.05,
-    }));
-    let frame = 0;
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      pieces.forEach(p => {
-        ctx.beginPath(); ctx.lineWidth = p.r; ctx.strokeStyle = p.color;
-        ctx.moveTo(p.x + p.tilt + p.r / 3, p.y);
-        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
-        ctx.stroke();
-        p.tiltAngle += p.tiltSpeed; p.y += p.d + 1.5; p.tilt = Math.sin(p.tiltAngle) * 12;
-        if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
-      });
-      frame++;
-      if (frame < 120) requestAnimationFrame(draw);
-      else ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    draw();
+  // ─── Effects ──────────────────────────────────────────────────────────────
+  function launchIpadConfetti() {
+    _confetti(['#007AFF','#34AADC','#FFFFFF','#5AC8FA','#0056CC','#AAD4FF'], 70);
   }
-
-  function launchCoinBurst() {
+  function launchConfetti() {
+    _confetti(['#FF9A3C','#5BC4A0','#E85D7A','#7B78E8','#FFD700','#FF6B6B','#4ECDC4'], 80);
+  }
+  function _confetti(colors, count) {
     const canvas = document.getElementById('confetti');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const items = Array.from({ length: 50 }, () => ({
-      x: canvas.width / 2 + (Math.random() - 0.5) * canvas.width * 0.6,
-      y: canvas.height + 20,
-      vx: (Math.random() - 0.5) * 6,
-      vy: -(Math.random() * 12 + 8),
-      rot: Math.random() * 360,
-      rotV: (Math.random() - 0.5) * 8,
-      size: Math.random() * 14 + 14,
-      alpha: 1,
-      char: Math.random() > 0.5 ? '💵' : '🪙',
-      gravity: 0.35,
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const pieces = Array.from({ length: count }, () => ({
+      x: Math.random()*canvas.width, y: Math.random()*canvas.height - canvas.height,
+      r: Math.random()*7+4, d: Math.random()*3+1,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      tilt: Math.random()*10-10, tiltAngle: 0, tiltSpeed: Math.random()*0.1+0.05
     }));
     let frame = 0;
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      items.forEach(p => {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.font = `${p.size}px serif`;
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot * Math.PI / 180);
-        ctx.fillText(p.char, -p.size/2, p.size/2);
-        ctx.restore();
-        p.x += p.vx; p.y += p.vy; p.vy += p.gravity; p.rot += p.rotV;
-        if (frame > 60) p.alpha -= 0.025;
+    (function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      pieces.forEach(p => {
+        ctx.beginPath(); ctx.lineWidth=p.r; ctx.strokeStyle=p.color;
+        ctx.moveTo(p.x+p.tilt+p.r/3,p.y); ctx.lineTo(p.x+p.tilt,p.y+p.tilt+p.r); ctx.stroke();
+        p.tiltAngle+=p.tiltSpeed; p.y+=p.d+1.5; p.tilt=Math.sin(p.tiltAngle)*12;
+        if(p.y>canvas.height){p.y=-10;p.x=Math.random()*canvas.width;}
       });
-      frame++;
-      if (frame < 130) requestAnimationFrame(draw);
-      else ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    draw();
+      if(++frame<120) requestAnimationFrame(draw); else ctx.clearRect(0,0,canvas.width,canvas.height);
+    })();
   }
 
   function launchCashRain() {
-    const bg = document.getElementById('cashOverlayBg');
-    const overlay = document.getElementById('cashOverlay');
-    bg.classList.add('show');
-    overlay.classList.add('show');
-    setTimeout(() => {
-      bg.classList.remove('show');
-      overlay.classList.remove('show');
-    }, 3000);
-
-    const canvas = document.getElementById('cashRain');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const bills = Array.from({ length: 40 }, () => ({
-      x: Math.random() * canvas.width,
-      y: -60 - Math.random() * canvas.height,
-      speed: Math.random() * 3 + 2,
-      rot: Math.random() * 360,
-      rotV: (Math.random() - 0.5) * 3,
-      size: Math.random() * 16 + 20,
-      wobble: Math.random() * Math.PI * 2,
-      wobbleSpeed: Math.random() * 0.05 + 0.02,
-      char: ['💵','💵','💵','🪙','💴'][Math.floor(Math.random()*5)],
+    const bg=document.getElementById('cashOverlayBg'), ov=document.getElementById('cashOverlay');
+    bg.classList.add('show'); ov.classList.add('show');
+    setTimeout(()=>{bg.classList.remove('show');ov.classList.remove('show');},3500);
+    const canvas=document.getElementById('cashRain'), ctx=canvas.getContext('2d');
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+    const bills=Array.from({length:40},()=>({
+      x:Math.random()*canvas.width, y:-60-Math.random()*canvas.height,
+      speed:Math.random()*3+2, rot:Math.random()*360, rotV:(Math.random()-0.5)*3,
+      size:Math.random()*16+20, wobble:Math.random()*Math.PI*2, wobbleSpeed:Math.random()*0.05+0.02,
+      char:['💵','💵','💵','🪙','💴'][Math.floor(Math.random()*5)]
     }));
-    let frame = 0;
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      bills.forEach(b => {
-        ctx.save();
-        ctx.font = `${b.size}px serif`;
-        ctx.translate(b.x + Math.sin(b.wobble) * 20, b.y);
-        ctx.rotate(b.rot * Math.PI / 180);
-        ctx.fillText(b.char, 0, 0);
-        ctx.restore();
-        b.y += b.speed; b.rot += b.rotV; b.wobble += b.wobbleSpeed;
-        if (b.y > canvas.height + 60) b.y = -60;
+    let frame=0;
+    (function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      bills.forEach(b=>{
+        ctx.save(); ctx.font=`${b.size}px serif`;
+        ctx.translate(b.x+Math.sin(b.wobble)*20,b.y); ctx.rotate(b.rot*Math.PI/180);
+        ctx.fillText(b.char,0,0); ctx.restore();
+        b.y+=b.speed; b.rot+=b.rotV; b.wobble+=b.wobbleSpeed;
+        if(b.y>canvas.height+60) b.y=-60;
       });
-      frame++;
-      if (frame < 250) requestAnimationFrame(draw);
-      else ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    draw();
+      if(++frame<250) requestAnimationFrame(draw); else ctx.clearRect(0,0,canvas.width,canvas.height);
+    })();
   }
 
   // ─── Init ─────────────────────────────────────────────────────────────────
@@ -1084,10 +788,8 @@
     setDate();
     await loadState();
     renderAll();
-    // Hide loading overlay
-    const overlay = document.getElementById('loadingOverlay');
-    overlay.classList.add('hidden');
-    setTimeout(() => overlay.remove(), 500);
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    setTimeout(() => document.getElementById('loadingOverlay')?.remove(), 500);
   })();
 </script>
 </body>
