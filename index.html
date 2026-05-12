@@ -739,12 +739,16 @@
   }
 
   async function redisSet(key, value) {
-    // Upstash REST: /set/key/value/ex/seconds — all in the URL path
-    const encodedKey   = encodeURIComponent(key);
-    const encodedValue = encodeURIComponent(value);
-    const res = await fetch(`${UPSTASH_URL}/set/${encodedKey}/${encodedValue}/ex/108000`, {
-      method: 'GET', // Upstash REST accepts GET for all commands via URL
-      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+    // Upstash REST pipeline: send as a JSON command array
+    const res = await fetch(`${UPSTASH_URL}/pipeline`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify([
+        ['SET', key, value, 'EX', 108000]
+      ])
     });
     if (!res.ok) throw new Error(`SET failed: ${res.status}`);
     return res.ok;
@@ -782,14 +786,16 @@
   // ─── Load from Upstash ────────────────────────────────────────────────────
   async function loadState() {
     try {
+      console.log('[Checklist] Loading from key:', getTodayKey());
       const raw = await redisGet(getTodayKey());
+      console.log('[Checklist] Loaded raw value:', raw);
       if (raw) {
         state = JSON.parse(raw);
       } else {
         state = {};
       }
     } catch (e) {
-      console.warn('Load failed, starting fresh:', e);
+      console.error('[Checklist] Load failed:', e);
       state = {};
     }
   }
@@ -800,10 +806,14 @@
     setSyncStatus('Saving…', 'saving');
     saveTimer = setTimeout(async () => {
       try {
-        await redisSet(getTodayKey(), JSON.stringify(state));
+        const payload = JSON.stringify(state);
+        console.log('[Checklist] Saving to key:', getTodayKey(), 'value:', payload);
+        await redisSet(getTodayKey(), payload);
+        console.log('[Checklist] Save successful');
         setSyncStatus('✓ Saved', '');
         setTimeout(() => setSyncStatus('', ''), 2000);
       } catch (e) {
+        console.error('[Checklist] Save failed:', e);
         setSyncStatus('⚠ Save failed', 'error');
       }
     }, 600);
