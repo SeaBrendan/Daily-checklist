@@ -71,8 +71,27 @@
     font-size: 14px; color: rgba(255,255,255,0.85);
     margin-top: 4px; font-weight: 600; position: relative; z-index: 1;
   }
+
+  /* Viewing-past-day banner */
+  .viewing-banner {
+    display: none;
+    margin: 8px auto 0;
+    background: rgba(255,255,255,0.25);
+    border: 1.5px solid rgba(255,255,255,0.5);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    position: relative; z-index: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .viewing-banner.show { display: inline-block; }
+  .viewing-banner:active { background: rgba(255,255,255,0.38); }
+
   .header .progress-bar-wrap {
-    margin: 16px auto 0;
+    margin: 12px auto 0;
     background: rgba(255,255,255,0.25);
     border-radius: 20px; height: 10px; max-width: 260px;
     position: relative; z-index: 1; overflow: hidden;
@@ -102,13 +121,19 @@
   .weekly-tracker .wt-days {
     display: flex; justify-content: center; gap: 8px;
   }
-  .wt-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .wt-day {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wt-day:active { transform: scale(0.9); }
   .wt-day .day-name {
     font-size: 10px; font-weight: 800;
     color: rgba(255,255,255,0.7); text-transform: uppercase;
   }
   .wt-day .day-dot {
-    width: 28px; height: 28px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     background: rgba(255,255,255,0.2);
     border: 2px solid rgba(255,255,255,0.3);
     display: flex; align-items: center; justify-content: center;
@@ -117,6 +142,11 @@
   }
   .wt-day.complete .day-dot { background: #FFD700; border-color: #FFA500; transform: scale(1.1); }
   .wt-day.today .day-dot { border-color: white; border-width: 2.5px; }
+  .wt-day.selected .day-dot {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.8);
+    transform: scale(1.15);
+  }
+  .wt-day.complete.selected .day-dot { transform: scale(1.2); }
 
   .sync-indicator {
     font-size: 11px; color: rgba(255,255,255,0.75);
@@ -212,7 +242,6 @@
   }
   .task-item.checked .task-label { color: #B0A8C8; text-decoration: line-through; }
 
-  /* Reward row */
   .reward-row {
     display: flex; align-items: center; gap: 14px; padding: 13px 16px;
     background: #F5F0FF; border-top: 1.5px solid #E8E0F8;
@@ -242,7 +271,6 @@
   }
   .reward-row.lit .reward-name { color: white; }
 
-  /* iPad 30-min pill */
   .ipad-timer { display: flex; align-items: center; position: relative; z-index: 1; }
   .timer-pill {
     background: rgba(0,122,255,0.12);
@@ -256,7 +284,6 @@
     border-color: rgba(255,255,255,0.6); color: white;
   }
 
-  /* Stars for bedtime */
   .stars-wrap { display: flex; gap: 2px; position: relative; z-index: 1; }
   .star {
     font-size: 20px; opacity: 0;
@@ -322,16 +349,19 @@
 <div class="header">
   <h1>⭐ My Daily Checklist</h1>
   <div class="date" id="dateDisplay"></div>
+  <div class="viewing-banner" id="viewingBanner" onclick="goToToday()">
+    📅 Viewing <span id="viewingLabel"></span> — tap to go to Today
+  </div>
   <div class="progress-bar-wrap">
     <div class="progress-bar-fill" id="progressFill"></div>
   </div>
   <div class="progress-label" id="progressLabel">0 of 0 tasks done</div>
   <div class="weekly-tracker">
-    <div class="wt-label">💵 Weekly $5 Progress</div>
+    <div class="wt-label">💵 Weekly $5 Progress — tap a day</div>
     <div class="wt-days" id="weeklyDays"></div>
   </div>
   <div class="sync-indicator" id="syncIndicator"></div>
-  <button class="reset-btn" onclick="resetAll()">🔄 Start Fresh</button>
+  <button class="reset-btn" onclick="resetAll()">🔄 Reset This Day</button>
 </div>
 
 <div class="sections">
@@ -495,14 +525,24 @@
   const UPSTASH_URL   = 'https://balanced-goat-87907.upstash.io';
   const UPSTASH_TOKEN = 'gQAAAAAAAVdjAAIgcDJhODM0YjFiZWE1ZmU0MWY2OWU0NDg5MWY5MzNhZGFiZQ';
 
-  // ─── Key helpers ──────────────────────────────────────────────────────────
-  function todayStr() {
-    const d = new Date();
+  // ─── Currently viewed date (may differ from today) ────────────────────────
+  // viewingDate is a Date object set to midnight of the day being viewed
+  let viewingDate = new Date();
+  viewingDate.setHours(0,0,0,0);
+
+  function dateStr(d) {
     return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   }
-  function getTodayKey() { return `checklist:${todayStr()}`; }
+  function todayStr() {
+    const d = new Date(); d.setHours(0,0,0,0);
+    return dateStr(d);
+  }
+  function isViewingToday() {
+    return dateStr(viewingDate) === todayStr();
+  }
+  function getDayKey(d) { return `checklist:${dateStr(d)}`; }
   function getWeekKey() {
-    const d = new Date();
+    const d = new Date(viewingDate);
     const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
     const mon = new Date(d); mon.setDate(d.getDate() + diff);
     return `week:${mon.getFullYear()}-${mon.getMonth()+1}-${mon.getDate()}`;
@@ -526,40 +566,59 @@
     if (!res.ok) throw new Error(`SET failed: ${res.status}`);
   }
 
-  // ─── State ────────────────────────────────────────────────────────────────
+  // ─── Per-day state cache: { 'YYYY-M-D': { tasks } } ──────────────────────
+  const dayCache = {};
+  let weekData   = {};
+  let saveTimer  = null;
+
   const sections     = ['morning', 'afterschool', 'dinner', 'bedtime'];
   const ipadSections = ['morning', 'afterschool', 'dinner'];
-  let state    = {};
-  let weekData = {};
-  let saveTimer = null;
 
+  function currentState() {
+    const key = dateStr(viewingDate);
+    if (!dayCache[key]) dayCache[key] = {};
+    return dayCache[key];
+  }
+
+  // ─── Sync indicator ───────────────────────────────────────────────────────
   function setSyncStatus(msg, cls) {
     const el = document.getElementById('syncIndicator');
     el.textContent = msg;
     el.className = 'sync-indicator' + (cls ? ' ' + cls : '');
   }
 
-  // ─── Load ─────────────────────────────────────────────────────────────────
-  async function loadState() {
+  // ─── Load viewing day from Upstash ────────────────────────────────────────
+  async function loadDay(d) {
+    const key = dateStr(d);
+    if (dayCache[key] !== undefined) return; // already loaded
     try {
-      const [rawDay, rawWeek] = await Promise.all([redisGet(getTodayKey()), redisGet(getWeekKey())]);
-      state    = rawDay  ? JSON.parse(rawDay)  : {};
-      weekData = rawWeek ? JSON.parse(rawWeek) : {};
-      console.log('[Checklist] Loaded — day:', state, 'week:', weekData);
+      const raw = await redisGet(`checklist:${key}`);
+      dayCache[key] = raw ? JSON.parse(raw) : {};
     } catch(e) {
-      console.error('[Checklist] Load failed:', e);
-      state = {}; weekData = {};
+      console.error('[Checklist] Load day failed:', e);
+      dayCache[key] = {};
     }
   }
 
-  // ─── Save day ─────────────────────────────────────────────────────────────
+  async function loadWeek() {
+    try {
+      const raw = await redisGet(getWeekKey());
+      weekData = raw ? JSON.parse(raw) : {};
+    } catch(e) {
+      console.error('[Checklist] Load week failed:', e);
+      weekData = {};
+    }
+  }
+
+  // ─── Save current day ─────────────────────────────────────────────────────
   function saveState() {
     clearTimeout(saveTimer);
     setSyncStatus('Saving…', 'saving');
     saveTimer = setTimeout(async () => {
       try {
-        await redisSet(getTodayKey(), JSON.stringify(state), 108000); // 30h
-        console.log('[Checklist] Day saved');
+        const key = dateStr(viewingDate);
+        await redisSet(`checklist:${key}`, JSON.stringify(dayCache[key]), 108000);
+        console.log('[Checklist] Day saved:', key);
         setSyncStatus('✓ Saved', '');
         setTimeout(() => setSyncStatus('', ''), 2000);
       } catch(e) {
@@ -569,17 +628,51 @@
     }, 600);
   }
 
-  // ─── Save week ────────────────────────────────────────────────────────────
   async function saveWeekData() {
     try {
-      await redisSet(getWeekKey(), JSON.stringify(weekData), 691200); // 8 days
-      console.log('[Checklist] Week saved');
+      await redisSet(getWeekKey(), JSON.stringify(weekData), 691200);
     } catch(e) { console.error('[Checklist] Week save failed:', e); }
   }
 
-  // ─── Toggle ───────────────────────────────────────────────────────────────
+  // ─── Switch to a different day ────────────────────────────────────────────
+  async function switchToDay(d) {
+    setSyncStatus('Loading…', 'saving');
+    viewingDate = new Date(d);
+    viewingDate.setHours(0,0,0,0);
+    await loadDay(viewingDate);
+    renderAll();
+    updateHeaderDate();
+    setSyncStatus('', '');
+  }
+
+  function goToToday() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    switchToDay(today);
+  }
+
+  // ─── Header date + viewing banner ─────────────────────────────────────────
+  function updateHeaderDate() {
+    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const d = viewingDate;
+    document.getElementById('dateDisplay').textContent =
+      `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+    const banner = document.getElementById('viewingBanner');
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    if (!isViewingToday()) {
+      document.getElementById('viewingLabel').textContent =
+        `${dayNames[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+      banner.classList.add('show');
+    } else {
+      banner.classList.remove('show');
+    }
+  }
+
+  // ─── Toggle task ──────────────────────────────────────────────────────────
   function toggleTask(el) {
     const taskId = el.dataset.task;
+    const state  = currentState();
     state[taskId] = !state[taskId];
     saveState();
     renderTask(el, state[taskId]);
@@ -596,14 +689,13 @@
     const done  = card.querySelectorAll('.task-item.checked').length;
     document.getElementById('count-' + sectionId).textContent = `${done} of ${tasks.length} done`;
 
-    const reward       = document.getElementById('reward-' + sectionId);
-    const wasComplete  = card.classList.contains('completed');
-    const isComplete   = done === tasks.length;
+    const reward      = document.getElementById('reward-' + sectionId);
+    const wasComplete = card.classList.contains('completed');
+    const isComplete  = done === tasks.length;
 
     if (isComplete && !wasComplete) {
       card.classList.add('completed');
       reward.classList.add('lit');
-      // Update pill text for iPad sections
       if (ipadSections.includes(sectionId)) {
         reward.querySelector('.timer-pill').textContent = '30 min 🔓';
         launchIpadConfetti();
@@ -621,18 +713,20 @@
     }
   }
 
-  // ─── Progress + all-done ──────────────────────────────────────────────────
+  // ─── Progress + all-done banner ───────────────────────────────────────────
   function updateProgress() {
     const all  = document.querySelectorAll('.task-item').length;
     const done = document.querySelectorAll('.task-item.checked').length;
     document.getElementById('progressFill').style.width = (all ? Math.round(done/all*100) : 0) + '%';
     document.getElementById('progressLabel').textContent = `${done} of ${all} tasks done`;
 
-    const allDone = sections.every(s => document.getElementById('section-'+s).classList.contains('completed'));
-    const banner  = document.getElementById('allDoneBanner');
+    const allDone = sections.every(s =>
+      document.getElementById('section-'+s).classList.contains('completed')
+    );
+    const banner = document.getElementById('allDoneBanner');
 
     if (allDone) {
-      const td = todayStr();
+      const td = dateStr(viewingDate);
       const wasMarked = !!weekData[td];
       weekData[td] = true;
       if (!wasMarked) saveWeekData();
@@ -653,37 +747,48 @@
         document.getElementById('allDoneMsg').textContent    = "All tasks done — you're on track for $5 this week! 💵";
       }
     } else {
+      // Only remove complete marker if tasks were manually unchecked
       banner.classList.remove('show', 'week-complete');
     }
   }
 
   // ─── Weekly tracker ───────────────────────────────────────────────────────
   function getWeekDays() {
-    const d   = new Date();
+    // Always based on the current real week (not viewing date)
+    const d    = new Date(); d.setHours(0,0,0,0);
     const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
     const mon  = new Date(d); mon.setDate(d.getDate() + diff);
     const today = todayStr();
+    const viewingKey = dateStr(viewingDate);
     return ['M','T','W','T','F'].map((lbl, i) => {
       const dd = new Date(mon); dd.setDate(mon.getDate() + i);
-      const ds = `${dd.getFullYear()}-${dd.getMonth()+1}-${dd.getDate()}`;
-      return { label: lbl, dateStr: ds, isToday: ds === today };
+      const ds = dateStr(dd);
+      return { label: lbl, dateStr: ds, isToday: ds === today, isSelected: ds === viewingKey, dateObj: dd };
     });
   }
+
   function renderWeeklyTracker() {
     const container = document.getElementById('weeklyDays');
     container.innerHTML = '';
-    getWeekDays().forEach(({ label, dateStr, isToday }) => {
-      const complete = !!weekData[dateStr];
+    getWeekDays().forEach(({ label, dateStr: ds, isToday, isSelected, dateObj }) => {
+      const complete = !!weekData[ds];
       const div = document.createElement('div');
-      div.className = 'wt-day' + (complete ? ' complete' : '') + (isToday ? ' today' : '');
+      div.className = 'wt-day'
+        + (complete   ? ' complete'  : '')
+        + (isToday    ? ' today'     : '')
+        + (isSelected ? ' selected'  : '');
       div.innerHTML = `<div class="day-name">${label}</div><div class="day-dot">${complete ? '⭐' : ''}</div>`;
+      div.addEventListener('click', () => switchToDay(dateObj));
       container.appendChild(div);
     });
   }
 
-  // ─── Render all ───────────────────────────────────────────────────────────
+  // ─── Render all tasks for current viewing day ─────────────────────────────
   function renderAll() {
-    document.querySelectorAll('.task-item').forEach(el => renderTask(el, !!state[el.dataset.task]));
+    const state = currentState();
+    document.querySelectorAll('.task-item').forEach(el =>
+      renderTask(el, !!state[el.dataset.task])
+    );
     sections.forEach(s => {
       const card  = document.getElementById('section-' + s);
       const tasks = card.querySelectorAll('.task-item');
@@ -704,36 +809,24 @@
     updateProgress();
   }
 
-  // ─── Reset ────────────────────────────────────────────────────────────────
+  // ─── Reset current day ────────────────────────────────────────────────────
   async function resetAll() {
-    if (!confirm('Reset all tasks for today?')) return;
-    delete weekData[todayStr()];
-    state = {};
+    const ds = dateStr(viewingDate);
+    if (!confirm(`Reset all tasks for ${ds}?`)) return;
+    delete weekData[ds];
+    dayCache[ds] = {};
     renderAll();
     await Promise.all([
-      redisSet(getTodayKey(), JSON.stringify(state), 108000),
+      redisSet(`checklist:${ds}`, JSON.stringify({}), 108000),
       saveWeekData()
     ]);
     setSyncStatus('✓ Reset saved', '');
     setTimeout(() => setSyncStatus('', ''), 2000);
   }
 
-  // ─── Date ─────────────────────────────────────────────────────────────────
-  function setDate() {
-    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const d = new Date();
-    document.getElementById('dateDisplay').textContent =
-      `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-  }
-
   // ─── Effects ──────────────────────────────────────────────────────────────
-  function launchIpadConfetti() {
-    _confetti(['#007AFF','#34AADC','#FFFFFF','#5AC8FA','#0056CC','#AAD4FF'], 70);
-  }
-  function launchConfetti() {
-    _confetti(['#FF9A3C','#5BC4A0','#E85D7A','#7B78E8','#FFD700','#FF6B6B','#4ECDC4'], 80);
-  }
+  function launchIpadConfetti() { _confetti(['#007AFF','#34AADC','#FFFFFF','#5AC8FA','#0056CC','#AAD4FF'], 70); }
+  function launchConfetti()     { _confetti(['#FF9A3C','#5BC4A0','#E85D7A','#7B78E8','#FFD700','#FF6B6B','#4ECDC4'], 80); }
   function _confetti(colors, count) {
     const canvas = document.getElementById('confetti');
     const ctx = canvas.getContext('2d');
@@ -785,9 +878,10 @@
 
   // ─── Init ─────────────────────────────────────────────────────────────────
   (async () => {
-    setDate();
-    await loadState();
+    viewingDate = new Date(); viewingDate.setHours(0,0,0,0);
+    await Promise.all([loadDay(viewingDate), loadWeek()]);
     renderAll();
+    updateHeaderDate();
     document.getElementById('loadingOverlay').classList.add('hidden');
     setTimeout(() => document.getElementById('loadingOverlay')?.remove(), 500);
   })();
