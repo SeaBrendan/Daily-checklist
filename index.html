@@ -108,10 +108,24 @@
     z-index: 1;
   }
 
+  /* Sync indicator */
+  .sync-indicator {
+    font-size: 11px;
+    color: rgba(255,255,255,0.75);
+    margin-top: 4px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+    min-height: 16px;
+    transition: opacity 0.3s;
+  }
+  .sync-indicator.saving { color: rgba(255,255,255,0.9); }
+  .sync-indicator.error  { color: #FFD0D0; }
+
   /* Reset button */
   .reset-btn {
     display: block;
-    margin: 16px auto 0;
+    margin: 12px auto 0;
     background: rgba(255,255,255,0.25);
     border: 2px solid rgba(255,255,255,0.5);
     color: white;
@@ -126,6 +140,31 @@
     transition: all 0.2s;
   }
   .reset-btn:active { transform: scale(0.96); background: rgba(255,255,255,0.35); }
+
+  /* Loading overlay */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 20000;
+    transition: opacity 0.4s;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loading-spinner {
+    width: 48px; height: 48px;
+    border: 5px solid #E0D8F8;
+    border-top-color: #7B78E8;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 16px;
+  }
+  .loading-overlay p {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    color: #7B78E8;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* Main content */
   .sections { padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
@@ -478,6 +517,12 @@
 </head>
 <body>
 
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <p>Loading checklist…</p>
+</div>
+
 <canvas class="confetti-canvas" id="confetti"></canvas>
 <canvas class="cash-rain-canvas" id="cashRain"></canvas>
 <div class="cash-overlay-bg" id="cashOverlayBg"></div>
@@ -495,6 +540,7 @@
     <div class="progress-bar-fill" id="progressFill"></div>
   </div>
   <div class="progress-label" id="progressLabel">0 of 0 tasks done</div>
+  <div class="sync-indicator" id="syncIndicator"></div>
   <button class="reset-btn" onclick="resetAll()">🔄 Start Fresh</button>
 </div>
 
@@ -674,16 +720,45 @@
 </div>
 
 <script>
-  const STORAGE_KEY = 'dailyChecklist_v3';
+  // ─── Upstash config ───────────────────────────────────────────────────────
+  const UPSTASH_URL   = 'https://balanced-goat-87907.upstash.io';
+  const UPSTASH_TOKEN = 'gQAAAAAAAVdjAAIgcDJhODM0YjFiZWE1ZmU0MWY2OWU0NDg5MWY5MzNhZGFiZQ';
+
+  function getTodayKey() {
+    const d = new Date();
+    return `checklist:${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  }
+
+  async function redisGet(key) {
+    const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+    });
+    const json = await res.json();
+    return json.result; // null or string
+  }
+
+  async function redisSet(key, value) {
+    // Store with 30-hour expiry so it auto-cleans after the day
+    const res = await fetch(`${UPSTASH_URL}/set/${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ value, ex: 108000 }) // 30 hours
+    });
+    return res.ok;
+  }
+
+  // ─── App state ────────────────────────────────────────────────────────────
   const sections = ['morning', 'afterschool', 'dinner', 'bedtime'];
   let state = {};
+  let saveTimer = null;
 
-  // Tue = 2, Thu = 4
   function isCashDay() {
     return [2, 4].includes(new Date().getDay());
   }
 
-  // Reward config per section
   const defaultRewards = {
     morning:     { icon: '📱', name: 'iPad Time' },
     afterschool: { icon: '📱', name: 'iPad Time' },
@@ -697,26 +772,44 @@
     bedtime:     { icon: '💵', name: '$5 Cash Reward!' },
   };
 
-  function getTodayKey() {
-    const d = new Date();
-    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  // ─── Sync indicator ───────────────────────────────────────────────────────
+  function setSyncStatus(msg, cls) {
+    const el = document.getElementById('syncIndicator');
+    el.textContent = msg;
+    el.className = 'sync-indicator' + (cls ? ' ' + cls : '');
   }
 
-  function loadState() {
+  // ─── Load from Upstash ────────────────────────────────────────────────────
+  async function loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = await redisGet(getTodayKey());
       if (raw) {
-        const saved = JSON.parse(raw);
-        if (saved.date === getTodayKey()) { state = saved.tasks || {}; return; }
+        state = JSON.parse(raw);
+      } else {
+        state = {};
       }
-    } catch(e) {}
-    state = {};
+    } catch (e) {
+      console.warn('Load failed, starting fresh:', e);
+      state = {};
+    }
   }
 
+  // ─── Save to Upstash (debounced) ──────────────────────────────────────────
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: getTodayKey(), tasks: state }));
+    clearTimeout(saveTimer);
+    setSyncStatus('Saving…', 'saving');
+    saveTimer = setTimeout(async () => {
+      try {
+        await redisSet(getTodayKey(), JSON.stringify(state));
+        setSyncStatus('✓ Saved', '');
+        setTimeout(() => setSyncStatus('', ''), 2000);
+      } catch (e) {
+        setSyncStatus('⚠ Save failed', 'error');
+      }
+    }, 600);
   }
 
+  // ─── UI helpers ───────────────────────────────────────────────────────────
   function toggleTask(el) {
     const taskId = el.dataset.task;
     state[taskId] = !state[taskId];
@@ -841,11 +934,13 @@
     updateProgress();
   }
 
-  function resetAll() {
+  async function resetAll() {
     if (!confirm('Reset all tasks for today?')) return;
     state = {};
-    saveState();
     renderAll();
+    await redisSet(getTodayKey(), JSON.stringify(state));
+    setSyncStatus('✓ Reset saved', '');
+    setTimeout(() => setSyncStatus('', ''), 2000);
   }
 
   function setDate() {
@@ -856,7 +951,7 @@
       `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
-  // Standard confetti
+  // ─── Confetti & effects ───────────────────────────────────────────────────
   function launchConfetti() {
     const canvas = document.getElementById('confetti');
     const ctx = canvas.getContext('2d');
@@ -891,14 +986,11 @@
     draw();
   }
 
-  // Coin burst for cash day section complete
   function launchCoinBurst() {
     const canvas = document.getElementById('confetti');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
-    // Emit dollar signs as text particles
     const items = Array.from({ length: 50 }, () => ({
       x: canvas.width / 2 + (Math.random() - 0.5) * canvas.width * 0.6,
       y: canvas.height + 20,
@@ -911,7 +1003,6 @@
       char: Math.random() > 0.5 ? '💵' : '🪙',
       gravity: 0.35,
     }));
-
     let frame = 0;
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -933,9 +1024,7 @@
     draw();
   }
 
-  // Full cash rain for all done on cash day
   function launchCashRain() {
-    // Show dramatic overlay
     const bg = document.getElementById('cashOverlayBg');
     const overlay = document.getElementById('cashOverlay');
     bg.classList.add('show');
@@ -945,7 +1034,6 @@
       overlay.classList.remove('show');
     }, 3000);
 
-    // Rain money on canvas
     const canvas = document.getElementById('cashRain');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -961,7 +1049,6 @@
       wobbleSpeed: Math.random() * 0.05 + 0.02,
       char: ['💵','💵','💵','🪙','💴'][Math.floor(Math.random()*5)],
     }));
-
     let frame = 0;
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -982,10 +1069,16 @@
     draw();
   }
 
-  // Init
-  loadState();
-  setDate();
-  renderAll();
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  (async () => {
+    setDate();
+    await loadState();
+    renderAll();
+    // Hide loading overlay
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('hidden');
+    setTimeout(() => overlay.remove(), 500);
+  })();
 </script>
 </body>
 </html>
